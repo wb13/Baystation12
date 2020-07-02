@@ -231,19 +231,22 @@
 		return
 
 	..()
-	var/min_damage = 7
-	var/max_damage = 14
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_HEAD, armor_pen = 50)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_CHEST, armor_pen = 50)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_GROIN, armor_pen = 75)
+
+	var/skill = (1.2 - get_skill_value(SKILL_HAULING)/SKILL_MAX) * 1.2
+	var/min_damage = 0 * skill
+	var/max_damage = 12 * skill
+
+	apply_damage(rand(min_damage, max_damage), BRUTE, BP_HEAD, armor_pen = 75)
+	apply_damage(rand(min_damage, max_damage)*0.4, BRUTE, BP_CHEST, armor_pen = 50)
+	apply_damage(rand(min_damage, max_damage)*0.6, BRUTE, BP_GROIN, armor_pen = 50)
 	apply_damage(rand(min_damage, max_damage), BRUTE, BP_L_LEG, armor_pen = 100)
 	apply_damage(rand(min_damage, max_damage), BRUTE, BP_R_LEG, armor_pen = 100)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_L_FOOT, armor_pen = 100)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_R_FOOT, armor_pen = 100)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_L_ARM, armor_pen = 75)
-	apply_damage(rand(min_damage, max_damage), BRUTE, BP_R_ARM, armor_pen = 75)
-	weakened = max(weakened, 3)
-	if(prob(skill_fail_chance(SKILL_HAULING, 40, SKILL_EXPERT, 2)))
+	apply_damage(rand(min_damage, max_damage)*1.2, BRUTE, BP_L_FOOT, armor_pen = 100)
+	apply_damage(rand(min_damage, max_damage)*1.2, BRUTE, BP_R_FOOT, armor_pen = 100)
+	apply_damage(rand(min_damage, max_damage)*0.8, BRUTE, BP_L_ARM, armor_pen = 75)
+	apply_damage(rand(min_damage, max_damage)*0.8, BRUTE, BP_R_ARM, armor_pen = 75)
+	weakened = max(weakened, 3 * (1-skill))
+	if(skill_fail_prob(SKILL_HAULING, 40, SKILL_EXPERT, 1.2))
 		var/list/victims = list()
 		for(var/tag in list(BP_L_FOOT, BP_R_FOOT, BP_L_ARM, BP_R_ARM))
 			var/obj/item/organ/external/E = get_organ(tag)
@@ -251,6 +254,8 @@
 				victims += E
 		if(victims.len)
 			var/obj/item/organ/external/victim = pick(victims)
+			if(prob(20))
+				victim.fracture()
 			victim.dislocate()
 			to_chat(src, "<span class='warning'>You feel a sickening pop as your [victim.joint] is wrenched out of the socket.</span>")
 	updatehealth()
